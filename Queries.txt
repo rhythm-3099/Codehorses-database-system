@@ -1,0 +1,105 @@
+							######## Queries ########
+
+
+1.   Give the name of the top 3 programmers that belonging to India.
+		SELECT _user.username FROM _user WHERE (country='India') ORDER BY rating DESC LIMIT 3; 
+
+
+
+
+2.   How many problems are solved by userid 105?
+		SELECT count(*) FROM( SELECT DISTINCT(problemID,contestID,status) FROM submission WHERE (userid=105 AND status='ACCEPTED')) 				AS nested;
+
+
+
+
+3.   Give all the rating changes of users who participated in contest 1024.
+		SELECT userID,ratingChange FROM gives WHERE (contestID=1024);
+
+
+
+
+4.   How many number of blogs user 102 has written?
+		SELECT count(*) FROM blog WHERE (writerid=102);
+
+
+
+
+5.   Which country's programmers have solved the maximum number of DP Problem?
+		select distinct r2.country from (select count(*) as cnt,_user.country from (select distinct			(submission.contestid,submission.problemid) as prob,_user.userid,_user.country from _user cross join submission cross join 				categorized cross join tag where _user.userid=submission.userid and submission.problemid=categorized.problemid and 					status='ACCEPTED' and tag_name='dp')
+		as r1 join _user on(r1.userid=_user.userid) group by _user.country order by cnt desc limit 1) as r2 natural join _user;
+
+
+
+
+6.   Which category has maximum success rate?
+		create or replace view p2 as select accep,tag.tag_name from(select count(*) as accep,tagid from submission natural join 				categorized natural join tag where status='ACCEPTED' group by tagid)
+		as q1 natural join tag;
+
+		create or replace view p3 as select q2.total,tag.tag_name from(select count(*) as total,tagid from submission natural join 				categorized natural join tag group by tagid)
+		as q2 natural join tag;
+		select (accep*100)/total as ratio,tag_name from p2 natural join p3 order by ratio desc limit 1;
+
+
+
+
+7.   How many times did user 102 send message to the user 104?
+		SELECT count(*) FROM messages WHERE (senderID=102 AND receiverID=104);
+
+
+
+
+8.   Which are the top 5 programmers belonging to the institute 'DAIICT'?
+		SELECT username FROM _user WHERE (institute='DA-IICT' OR institute='DAIICT') ORDER BY rating DESC LIMIT 5;
+
+
+
+
+9.   What is the average success rate of the programmer belonging to institute 'DAIICT'?
+		CREATE OR REPLACE VIEW singAccSubs AS
+		SELECT DISTINCT submissionID,submission.userID,status,contestID,problemID,institute FROM submission JOIN _user ON 				(submission.userID = _user.userID) WHERE (status='ACCEPTED' AND institute='DAIICT');
+
+		CREATE OR REPLACE VIEW accSubsCount AS
+		SELECT count(status) as succCount FROM singAccSubs ;
+	
+		CREATE OR REPLACE VIEW wrongAttemptsCount AS
+		SELECT count(sub.status) as wrongCount FROM _user as us JOIN submission as sub on (us.userid = sub.userid AND 
+		sub.status!='ACCEPTED' AND (us.institute='DAIICT' OR us.institute='DA-IICT'));
+
+		SELECT (succCount*100/(succCount+wrongCount)) as successRate FROM wrongAttemptsCount CROSS JOIN accSubsCount;
+
+
+
+
+10.   what is the weakest category for user 135?
+		create or replace view p2 as select accep,tag.tag_name from(select count(*) as accep,tagid from submission natural join 				categorized natural join tag where status='ACCEPTED' and userid='101' group by tagid)
+		as q1 right join tag on(q1.tagid=tag.tagid);
+
+		create or replace view p3 as select q2.total,tag.tag_name from(select count(*) as total,tagid from submission natural join 				categorized natural join tag where userid='101' group by tagid)
+		as q2 natural join tag;
+
+		create or replace view p4 as select (accep*100)/total as ratio,accep,total,tag_name from p2 natural join p3 order by ratio;
+
+		select tag_name,coalesce(ratio,0) as ratio  from p4 ORDER BY ratio LIMIT 1;
+
+
+
+
+11.   Give the list of unsolved problems of user 135.
+		create or replace view r1 as select distinct contestid,problemid from submission where userid=135;
+		create or replace view r2 as select distinct contestid,problemid from submission where status='ACCEPTED' and userid=135;
+		select * from r1
+		except
+		select * from r2;
+			
+
+
+ 
+
+
+
+
+
+
+
+

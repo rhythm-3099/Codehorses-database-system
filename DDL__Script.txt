@@ -1,0 +1,141 @@
+						DDL Scripts
+
+1.	Script for _user:
+CREATE TABLE _user (
+    userid int,
+    username varchar(20),
+    emailid varchar(30),
+    user_password varchar(20),
+    rating int,
+    contribution int,
+    institute varchar(20),
+    country varchar(20),
+    last_online timestamp,
+	primary key(userid)
+);
+
+
+2.	Script for contest:
+CREATE TABLE contest (  
+	contestID INT,
+	_type INT,
+	duration INT,
+	date timestamp,
+	PRIMARY KEY (contestID);
+);
+
+
+3.	Script for blog:
+create table blog(
+	blogid int,
+	time timestamp,
+	content VARCHAR(50),
+	upvote int,
+	downvote int,
+	writerid int,
+	primary key(blogid),
+	foreign key(writerid) references _user(userid)
+		ON DELETE SET DEFAULT ON UPDATE CASCADE
+);
+
+
+4.	Script for Tag:
+create table Tag(
+	TagID int,
+	Tag_name varchar(20),
+	primary key(TagID)
+);
+
+
+5.	Script for _comment:
+create table _comment(
+	UserID int,
+	BlogID int,
+	Comment_Body varchar(100),
+	_time timestamp,
+	primary key(UserID,BlogID,_time),
+	foreign key (UserID) references _user(UserID)
+	ON DELETE SET DEFAULT ON UPDATE CASCADE,
+	foreign key (BlogID) references Blog(BlogID)
+	ON DELETE SET DEFAULT ON UPDATE CASCADE
+);
+
+6.	Script for about:
+create table about(
+	blogID int,
+	tagID int,
+	primary key(blogID,tagID),
+	foreign key(blogID) references blog(blogID) ON DELETE SET DEFAULT ON UPDATE CASCADE,
+	foreign key(tagID) references tag(tagID) ON DELETE SET DEFAULT ON UPDATE CASCADE
+);
+
+
+7.	Script for Problem:
+create table Problem(
+	ProblemID int,
+	ContestID int,
+	_type char,
+	time_constraint int,
+	memory_constraint int,
+	primary key(ProblemID,ContestID),
+	foreign key (ContestID) references Contest(ContestID)
+	ON DELETE SET DEFAULT ON UPDATE CASCADE
+);
+
+
+8.	Script for categorized:
+create table categorized(
+	contestID int,
+	problemID int,
+	tagID int,
+	primary key(problemID,contestID,tagID),
+	foreign key(contestID,problemID) references problem(contestID,problemID) 
+		ON DELETE SET DEFAULT ON UPDATE CASCADE,
+	foreign key(tagID) references tag(tagID) 
+		ON DELETE SET DEFAULT ON UPDATE CASCADE
+);
+
+
+9.	Script for messages:
+CREATE TABLE messages (  
+	senderID INT,
+	receiverID INT,
+	message_body VARCHAR(100),
+	_time timestamp,
+	PRIMARY KEY (senderID,receiverID,_time),
+	FOREIGN KEY (senderID) REFERENCES _user(userID)  
+		ON DELETE SET DEFAULT ON UPDATE CASCADE,
+	FOREIGN KEY (receiverID) REFERENCES _user(userID)  
+		ON DELETE SET DEFAULT ON UPDATE CASCADE
+);
+
+
+10.	   Script for submission:
+CREATE TABLE submission
+(
+    submissionid int,
+    submissiontime timestamp,
+    userid int,
+    status varchar(30),
+    exec_memory int,
+    exec_time int,
+    contestid int,
+    problemid int,
+	PRIMARY KEY(submissionID),
+    FOREIGN KEY (contestid, problemid) REFERENCES problem(contestid, problemid)
+		 ON DELETE SET DEFAULT ON UPDATE CASCADE
+);
+
+
+11.	  Script for gives:
+CREATE TABLE gives (  
+	userID INT,
+	contestID INT,
+	ratingChange INT,
+	_rank INT,
+	PRIMARY KEY (userID,contestID),
+	FOREIGN KEY (userID) REFERENCES _user(userID)   
+		ON DELETE SET DEFAULT ON UPDATE CASCADE,
+	FOREIGN KEY (contestID) REFERENCES contest(contestID)   
+		ON DELETE SET DEFAULT ON UPDATE CASCADE
+);
